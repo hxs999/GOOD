@@ -1,0 +1,57 @@
+ public ReturnObject<Object> deleteFlashSale(Long id) {
+        return flashSaleDao.deleteFlashSale(id);
+    }
+
+    public ReturnObject<Object> onshelvesFlashSale(Long id) {
+        return flashSaleDao.onshelvesFlashSale(id);
+    }
+
+    public ReturnObject<Object> offshelvesFlashSale(Long id) {
+        return flashSaleDao.offshelvesFlashSale(id);
+    }
+
+    /**
+     * 增加秒杀活动商品
+     *
+     * @param id
+     * @param skuInputVo
+     * @return
+     * @author zhai
+     */
+    public ReturnObject addFlashSaleItem(Long id, SkuInputVo skuInputVo) {
+        ReturnObject returnObject = flashSaleDao.addItem(id, skuInputVo);
+        return returnObject;
+    }
+
+
+    /**
+     * 删除SkuItem
+     *
+     * @param fid
+     * @param id
+     * @return
+     * @author zhai
+     */
+    public ReturnObject<Object> deleteFlashSaleSku(Long fid, Long id) {
+        return flashSaleDao.deleteSku(fid, id);
+    }
+
+    /**
+     * 新建秒杀活动
+     *
+     * @param id
+     * @return
+     */
+    public ReturnObject createFlash(Long id, FlashSaleInputVo flashSaleInputVo) {
+        return flashSaleDao.createFlash(id, flashSaleInputVo);
+    }
+
+    public Flux<FlashSaleItem> getFlashSale(Long id) {
+        return reactiveRedisTemplate.opsForSet().members("cp_" + id.toString()).map(x -> (FlashSaleItem) x);
+    }
+
+    @Override
+    public boolean disableActivity(Long skuId) {
+        return flashSaleDao.disableActivity(skuId);
+    }
+}
