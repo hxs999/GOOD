@@ -1,0 +1,65 @@
+public ReturnObject<Object> offshelvesFlashSale(Long id) {
+
+        FlashSalePo po = flashSalePoMapper.selectByPrimaryKey(id);
+        if (po == null || po.getState() == null) {
+            logger.info("秒杀活动不存在或已被删除：FlashSaleItemId = " + id);
+            return new ReturnObject<>(ResponseCode.RESOURCE_ID_NOTEXIST);
+        }
+        if (po.getState() == 0) {
+            logger.info("秒杀活动已下线，无法重复上线 ");
+            return new ReturnObject(ResponseCode.AUTH_NOT_ALLOW);
+        } else if (po.getState() == 2) {
+            logger.info("秒杀活动已删除");
+            return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+        }
+        po.setState(Byte.valueOf("0"));
+        int ret = flashSalePoMapper.updateByPrimaryKeySelective(po);
+        ReturnObject<Object> returnObject;
+        if (ret == 0) {
+            logger.info("秒杀活动下线失败：FlashSaleId = " + id);
+            returnObject = new ReturnObject(ResponseCode.ACTIVITYALTER_INVALID);
+        } else {
+            logger.info("秒杀活动下线成功：FlashSaleItemId = " + id);
+            returnObject = new ReturnObject(ResponseCode.OK);
+        }
+        return returnObject;
+    }
+
+    /**
+     * 增加秒杀活动商品
+     *
+     * @param id
+     * @param skuInputVo
+     * @return
+     */
+    public ReturnObject addItem(Long id, SkuInputVo skuInputVo) {
+        ReturnObject returnObject=null;
+        FlashSaleItem flashSaleItem = new FlashSaleItem(id, skuInputVo);
+        FlashSalePo po = flashSalePoMapper.selectByPrimaryKey(id);
+        if (po == null || po.getState() == null||po.getState()==2) {
+            logger.info("秒杀活动不存在或已被删除：FlashSaleId = " + id);
+            return null;
+        }
+        String key = "cp_" + po.getTimeSegId();
+        FlashSaleItemPo flashSaleItemPo = flashSaleItem.createItemPo();
+        int ret = flashSaleItemPoMapper.insertSelective(flashSaleItemPo);
+        if (ret == 0) {
+            logger.info("商品新增失败：FlashSaleId = " + id);
+        } else {
+            SkuToFlashSaleVo skuToFlashSaleVo = goodservice.flashFindSku(skuInputVo.getSkuId());
+            if (skuToFlashSaleVo == null) {
+                logger.info("该商品不存在");
+                return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+            } else {
+                FlashSaleItem flashSaleItem1=new FlashSaleItem(flashSaleItemPo);
+                FlashSaleOutputVo flashSaleOutputVo = new FlashSaleOutputVo(flashSaleItem1, skuToFlashSaleVo);
+                returnObject= new ReturnObject(flashSaleOutputVo);
+
+            }
+            FlashSaleItem item = new FlashSaleItem(flashSaleItemPo, skuToFlashSaleVo);
+            redisTemplate.opsForSet().add(key, item);
+            logger.info("商品新增成功：FlashSaleId = " + id);
+
+        }
+        return returnObject;
+    }
