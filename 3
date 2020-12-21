@@ -57,7 +57,7 @@ public ReturnObject<Object> offshelvesFlashSale(Long id) {
 
             }
             FlashSaleItem item = new FlashSaleItem(flashSaleItemPo, skuToFlashSaleVo);
-            redisTemplate.opsForSet().add(key, item);
+            redisTemplate.opsForSet(.add(key, item);
             logger.info("商品新增成功：FlashSaleId = " + id);
 
         }
