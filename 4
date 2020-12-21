@@ -1,0 +1,86 @@
+ public ReturnObject<Object> deleteSku(Long fid, Long id) {
+
+        FlashSalePo flashSalePo = flashSalePoMapper.selectByPrimaryKey(fid);
+        if (flashSalePo == null || flashSalePo.getState() == null||flashSalePo.getState()==2) {
+            logger.info("该秒杀活动不存在或已被删除：FlashSaleId = " + fid);
+            return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+        }
+        FlashSaleItemPo po = flashSaleItemPoMapper.selectByPrimaryKey(id);
+        if (po == null) {
+            logger.info("该商品不存在或已被删除：FlashSaleItemId = " + id);
+            return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+        }
+
+        if (po.getSaleId() == null) {
+            logger.info("无权限删除商品：GrouponId = " + id);
+            return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
+        }
+        if (po.getSaleId().equals(fid)) {
+
+            int ret = flashSaleItemPoMapper.deleteByPrimaryKey(id);
+            ReturnObject<Object> returnObject;
+            if (ret == 0) {
+                logger.info("商品删除失败：FlashSaleItemId = " + id);
+                returnObject = new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+            } else {
+                logger.info("商品删除成功：FlashSaleItemId = " + id);
+                String key = "cp_" + flashSalePo.getTimeSegId();
+                if (redisTemplate.opsForSet().pop(key) != null) {
+                    redisTemplate.opsForSet().pop(key);
+                }
+                returnObject = new ReturnObject();
+            }
+            return returnObject;
+        }
+        logger.info("无权限删除该商品");
+        return new ReturnObject(ResponseCode.RESOURCE_ID_OUTSCOPE);
+    }
+
+    /**
+     * 新建秒杀活动
+     *
+     * @param id
+     * @param flashSaleInputVo
+     * @return
+     */
+    public ReturnObject createFlash(Long id, FlashSaleInputVo flashSaleInputVo) {
+
+        if(id<0){
+            return new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+        }
+        FlashSalePoExample example=new FlashSalePoExample();
+        FlashSalePoExample.Criteria criteria=example.createCriteria();
+        if(flashSaleInputVo.getFlashDate()==null||flashSaleInputVo.getFlashDate().isBefore(LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth() + 1, 0, 0, 0))){
+            return new ReturnObject(ResponseCode.FIELD_NOTVALID);
+        }
+        criteria.andTimeSegIdEqualTo(id);
+        criteria.andFlashDateEqualTo(flashSaleInputVo.getFlashDate());
+        criteria.andStateNotEqualTo(Byte.valueOf((byte) 2));
+        List<FlashSalePo> po=flashSalePoMapper.selectByExample(example);
+        if(po.size()!=0){
+                return new ReturnObject(ResponseCode.TIMESEG_CONFLICT);
+        }
+        FlashSalePo flashSalePo = new FlashSalePo();
+        flashSalePo.setFlashDate(flashSaleInputVo.getFlashDate());
+        flashSalePo.setGmtCreate(LocalDateTime.now());
+        flashSalePo.setTimeSegId(id);
+        flashSalePo.setState((byte) 0);
+        try {
+            int ret = flashSalePoMapper.insertSelective(flashSalePo);
+            if (ret == 0) {
+                return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR);
+            } else {
+                FlashSaleRetVo flashSaleRetVo = new FlashSaleRetVo();
+                flashSaleRetVo.setId(flashSalePo.getId());
+                flashSaleRetVo.setGmtCreate(flashSalePo.getGmtCreate());
+                flashSaleRetVo.setFlashData(flashSalePo.getFlashDate());
+                return new ReturnObject(flashSaleRetVo);
+            }
+        } catch (Exception e) {
+            logger.error("发生了严重的数据库错误 : " + e.getMessage());
+            return new ReturnObject(ResponseCode.INTERNAL_SERVER_ERR, e.getMessage());
+        }
+    }
+
+
+
