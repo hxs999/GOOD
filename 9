@@ -1,0 +1,48 @@
+public ReturnObject<PageInfo<VoObject>> viewGoodsInCouponById(Integer page, Integer pageSize, List<SkuToCouponVo> skuToCouponVos) {
+        PageHelper.startPage(page, pageSize);
+        List<VoObject> ret = new ArrayList<>(skuToCouponVos.size());
+        try {
+            for (SkuToCouponVo vo : skuToCouponVos) {
+                SkuToCoupon sku = new SkuToCoupon(vo);
+                ret.add(sku);
+            }
+            PageInfo<VoObject> rolePage = PageInfo.of(ret);
+            PageInfo<SkuToCouponVo> commentPoPage = PageInfo.of(skuToCouponVos);
+            PageInfo<VoObject> commentPage = new PageInfo<>(ret);
+            commentPage.setPages(commentPoPage.getPages());
+            commentPage.setPageNum(commentPoPage.getPageNum());
+            commentPage.setPageSize(commentPoPage.getPageSize());
+            commentPage.setTotal(commentPoPage.getTotal());
+            return new ReturnObject<>(rolePage);
+        } catch (DataAccessException e) {
+            logger.error("viewGoodsInCouponById: DataAccessException:" + e.getMessage());
+            return new ReturnObject<>(ResponseCode.INTERNAL_SERVER_ERR);
+        }
+    }
+
+    public ReturnObject<PageInfo<VoObject>> showCouponsById(Integer pageNum, Integer pageSize, Integer state, Long userId) {
+        CouponPoExample couponPoExample = new CouponPoExample();
+        CouponPoExample.Criteria couponPoCriteria = couponPoExample.createCriteria();
+        couponPoCriteria.andCustomerIdEqualTo(userId);
+        if (state != null) {
+            couponPoCriteria.andStateEqualTo((byte) state.intValue());
+        }
+        List<CouponPo> couponPos = null;
+        PageHelper.startPage(pageNum, pageSize);
+        couponPos = couponPoMapper.selectByExample(couponPoExample);
+        List<VoObject> vo = new ArrayList<>(couponPos.size());
+        for (CouponPo couponPo : couponPos) {
+            Coupon co = new Coupon(couponPo);
+            CouponActivityPo couponActivityPo = couponActivityPoMapper.selectByPrimaryKey(co.getActivityId());
+            CouponRet couponRet = new CouponRet(co);
+            couponRet.SetByActivity(couponActivityPo);
+            CouponRetVo couponRetVo = new CouponRetVo(couponRet);
+            vo.add(couponRetVo);
+        }
+        PageInfo<VoObject> CouponPage = PageInfo.of(vo);
+        CouponPage.setTotal((PageInfo.of(couponPos).getTotal()));
+        CouponPage.setPages((PageInfo.of(couponPos).getPages()));
+        CouponPage.setPageNum(pageNum);
+        CouponPage.setPageSize(pageSize);
+        return new ReturnObject<>(CouponPage);
+    }
