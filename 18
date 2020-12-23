@@ -84,7 +84,7 @@
                             }
                         } else {
                             //用户有该优惠券
-                            returnObject = new ReturnObject(ResponseCode.COUPON_FINISH);
+                            returnObject = new RetuarnObject(ResponseCode.COUPON_FINISH);
                         }
                     }
                 }
