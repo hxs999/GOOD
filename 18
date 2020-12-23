@@ -1,0 +1,92 @@
+ public ReturnObject userGetCoupon(Long id, Long userId) {
+        ReturnObject returnObject = null;
+        //1.取出活动id判断是否存在
+        CouponActivityPo po = couponActivityPoMapper.selectByPrimaryKey(id);
+        if (po == null) {
+            //活动不存在
+            returnObject = new ReturnObject(ResponseCode.RESOURCE_ID_NOTEXIST);
+        } else {
+            //判断活动是否删除
+            if (po.getState().equals((byte) 2)) {
+                //活动未删除了
+                returnObject = new ReturnObject(ResponseCode.COUPONACT_STATENOTALLOW);
+            } else {
+                //判断是否到了优惠时间
+                if (!po.getCouponTime().isBefore(LocalDateTime.now())) {
+                    //没有到达优惠时间
+                    returnObject = new ReturnObject(ResponseCode.COUPON_NOTBEGIN);
+                } else {
+                    //判断是否还有优惠券
+                    if (po.getQuantity().equals(0)) {
+                        //没有优惠券
+                        returnObject = new ReturnObject(ResponseCode.COUPON_FINISH);
+                    } else {
+                        //判断优惠券类型 0代表每人数量，1代表总数控制
+                        //判断优惠活动的quantityType为0，且用户无此优惠卷，生成优惠卷的数目为quantity
+                        //判断优惠活动的quantityType为1，且用户无此优惠卷，去从优惠卷中领一张优惠卷
+                        //1.判断是否已经有此优惠券
+                        CouponPoExample example = new CouponPoExample();
+                        CouponPoExample.Criteria criteria = example.createCriteria();
+                        criteria.andActivityIdEqualTo(id);
+                        criteria.andCustomerIdEqualTo(userId);
+                        List<CouponPo> pos = couponPoMapper.selectByExample(example);
+                        String[] couponSn;
+                        ArrayList<String> couponSnArray = new ArrayList<>();
+                        if (pos.isEmpty()) {
+                            //用户没有这个优惠券（每人数量限制)(每人领取quantity张优惠券)
+                            if (po.getQuantitiyType().equals((byte) 0)) {
+                                for (int i = 0; i <= po.getQuantity(); i++) {
+                                    CouponPo couponPo = new CouponPo();
+                                    couponPo.setState((byte) 1);
+                                    couponPo.setGmtCreate(LocalDateTime.now());
+                                    couponPo.setActivityId(id);
+                                    couponPo.setBeginTime(po.getBeginTime());
+                                    couponPo.setEndTime(po.getEndTime());
+                                    couponPo.setCustomerId(userId);
+                                    couponPo.setName(po.getName());
+                                    String a = String.format("coupon%d_%d", userId, i);
+                                    couponSnArray.add(a);
+                                    couponPo.setCouponSn(a);
+                                    couponPoMapper.insert(couponPo);
+                                }
+                                //总数控制，总共有quantity张优惠券
+                                couponSn = couponSnArray.toArray(new String[couponSnArray.size()]);
+                                return new ReturnObject(couponSn);
+                            } else if (po.getQuantitiyType().equals((byte) 1)) {
+                                if (po.getQuantity() > 0) {
+                                    CouponPo couponPo = new CouponPo();
+                                    couponPo.setState((byte) 1);
+                                    couponPo.setGmtCreate(LocalDateTime.now());
+                                    couponPo.setActivityId(id);
+                                    couponPo.setBeginTime(po.getBeginTime());
+                                    couponPo.setEndTime(po.getEndTime());
+                                    couponPo.setCustomerId(userId);
+                                    couponPo.setName(po.getName());
+                                    String a = String.format("coupon%d", userId);
+                                    couponSnArray.add(a);
+                                    couponPo.setCouponSn(a);
+                                    couponPoMapper.insert(couponPo);
+                                    //取一张优惠券数量减1，当为0时直接设为-1
+                                    CouponActivityPo couponActivityPo = new CouponActivityPo();
+                                    if (po.getQuantity() - 1 > 0) {
+                                        couponActivityPo.setId(po.getId());
+                                        couponActivityPo.setQuantity(po.getQuantity() - 1);
+                                    } else {
+                                        couponActivityPo.setId(po.getId());
+                                        couponActivityPo.setQuantity(-1);
+                                    }
+                                    couponActivityPoMapper.updateByPrimaryKeySelective(couponActivityPo);
+                                    couponSn = couponSnArray.toArray(new String[couponSnArray.size()]);
+                                    return new ReturnObject(couponSn);
+                                }
+                            } else {
+                                return new ReturnObject(ResponseCode.COUPON_FINISH);
+                            }
+                        } else {
+                            //用户有该优惠券
+                            returnObject = new ReturnObject(ResponseCode.COUPON_FINISH);
+                        }
+                    }
+                }
+            }
+        }
