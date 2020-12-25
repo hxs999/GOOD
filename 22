@@ -1,0 +1,49 @@
+     type: "integer"
+          format: "int64"
+        name:
+          type: "string"
+        imageUrl:
+          type: "string"
+        detail:
+          type: "string"
+        gmtCreateTime:
+          type: "string"
+          format: "datetime"
+          description: "创建时间"
+        gmtModiTime:
+          type: "string"
+          format: "datetime"
+          description: "修改时间"
+
+  SimpleShop:
+    type: "object"
+    properties:
+        id:
+          type: "integer"
+          format: "int64"
+        name:
+          type: "string"
+
+  Shop:
+    type: "object"
+    properties:
+        id:
+          type: "integer"
+          format: "int64"
+        name:
+          type: "string"
+        gmtCreateTime:
+          type: "string"
+          format: "datetime"
+          description: "创建时间"
+        gmtModiTime:
+          type: "string"
+          format: "datetime"
+          description: "修改时间"
+
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
+basePath: /mingqcn/OOMALL/1.0.3
