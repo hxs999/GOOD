@@ -1,0 +1,67 @@
+swagger: "2.0"
+info:
+  description: |-
+   - 2020年软件工程专业《软件工程》、《面向对象分析分析与设计》、《JavaEE平台技术》课程设计API，共四个分工模块， 
+   - 权限模块(privilege), 
+   - 其他模块（user, footprint, favorite, advertisement, aftersales, address,cart,share,time），
+   - 订单模块（order, freight, payment）,
+   - 商品模块（goods,flashsale,coupon,groupon,presale,shop,comment）
+   - 通用错误处理
+   所有在路径上的id不存在，返回状态码404，errno = 0， errmsg 自定义
+   所有参数的错误返回状态码400，errno = 0， errmsg 自定义
+  version: 1.0.6
+  title: "基于面向对象的电子商城系统后端API"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "mingqiu@xmu.edu.cn"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+# host: "172.16.0.183"
+# basePath: "/v1"
+tags:
+- name: "user"
+  description: "买家用户服务"
+- name: "footprint"
+  description: "足迹服务"
+- name: "favorite"
+  description: "商品收藏服务"
+- name: "advertise"
+  description: "广告服务"
+- name: "aftersale"
+  description: "售后服务"
+- name: "address"
+  description: "地址服务"
+- name: "cart"
+  description: "购物车服务"
+- name: "share"
+  description: "分享服务"
+- name: "privilege"
+  description: "权限服务"
+- name: "order"
+  description: "订单服务"
+- name: "freight"
+  description: "运费服务"  
+- name: "payment"
+  description: "支付服务"
+- name: "goods"
+  description: "商品服务" 
+- name: "time"
+  description: "时间段服务"
+- name: "flashsale"
+  description: "秒杀服务"
+- name: "comment"
+  description: "评论服务"
+- name: "coupon"
+  description: "优惠服务"
+- name: "presale"
+  description: "预售服务"
+- name: "groupon"
+  description: "团购服务"
+- name: "shop"
+  description: "店铺服务"  
+
+# schemes:
+# - "http"
+
+paths:
