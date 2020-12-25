@@ -1,0 +1,320 @@
+        format: "datetime"
+        description: "开始时间"
+      endTime:
+        type: "string"
+        format: "datetime"
+        description: "结束时间"
+      gmtCreateTime:
+        type: "string"
+        format: "datetime"
+        description: "创建时间"
+      gmtModiTime:
+        type: "string"
+        format: "datetime"
+        description: "修改时间"    
+
+  SimplePresaleActivity:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "预售活动id"
+      name:
+        type: "string"
+        description: "活动名称"        
+      BeginTime:
+        type: "string"
+        format: "datetime"
+        description: "活动开始时间"
+      payTime:
+        type: "string"
+        format: "datetime"
+        description: "开始支付尾款时间"
+      endTime:
+        type: "string"
+        format: "datetime"
+        description: "活动结束时间"
+      advancePayPrice: 
+        type: "integer"
+        format: "int64"
+        description: "定金"
+      restPayPrice: 
+        type: "integer"
+        format: "int64"
+        description: "尾款"  
+
+  PresaleActivity:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "预售活动id"
+      name:
+        type: "string"
+        description: "活动名称"        
+      BeginTime:
+        type: "string"
+        format: "datetime"
+        description: "活动开始时间"
+      payTime:
+        type: "string"
+        format: "datetime"
+        description: "开始支付尾款时间"
+      endTime:
+        type: "string"
+        format: "datetime"
+        description: "活动结束时间"
+      goodsSpu:
+        $ref: "#/definitions/SimpleSpu"
+      shop:
+        $ref: "#/definitions/SimpleShop"
+      state:
+        type: "string"
+        description: "活动状态"
+      quantity: 
+        type: "integer"
+        format: "int64"
+        description: "活动库存量"
+      advancePayPrice: 
+        type: "integer"
+        format: "int64"
+        description: "定金"
+      restPayPrice: 
+        type: "integer"
+        format: "int64"
+        description: "尾款"
+      gmtCreateTime:
+        type: "string"
+        format: "datetime"
+        description: "创建时间"
+      gmtModiTime:
+        type: "string"
+        format: "datetime"
+        description: "修改时间"  
+
+  FlashSale:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "秒杀id"
+      flashDate:
+        type: "string"
+        format: "datetime"
+        description: "秒杀时间"
+      timeSeq:
+        $ref: "#/definitions/TimeSegment"
+      imageUrl:
+        type: "string"
+      gmtCreateTime:
+        type: "string"
+        format: "datetime"
+        description: "创建时间"
+      gmtModiTime:
+        type: "string"
+        format: "datetime"
+        description: "修改时间"
+
+  FlashSaleItem:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "秒杀Item id"
+      goodsSku:
+        $ref: "#/definitions/SimpleSku"
+      price:
+        type: "integer"
+      quantity:
+        type: "integer"
+      gmtCreateTime:
+        type: "string"
+        format: "datetime"
+        description: "创建时间"
+      gmtModiTime:
+        type: "string"
+        format: "datetime"
+        description: "修改时间"
+
+  SimpleSpu:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "SPU ID"
+      name:
+        type: "string"
+      goodsSn:
+        type: "string"
+      imageUrl:
+        type: "string"
+      state:
+        type: "integer"
+        description: "商品状态"
+      gmtCreateTime:
+        type: "string"
+        format: "datetime"
+        description: "创建时间"
+      gmtModiTime:
+        type: "string"
+        format: "datetime"
+        description: "修改时间"
+      disable:
+        type: "boolean"
+        default: false
+        description: "是否被逻辑删除"
+
+  Spu:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "SPU ID"
+      name:
+        type: "string"
+      brand:
+        $ref: "#/definitions/SimpleBrand"
+      category:
+        $ref: "#/definitions/SimpleCategory"
+      freight:
+        $ref: "#/definitions/FreightModel"
+      shop:
+        $ref: "#/definitions/SimpleShop"
+      goodsSn:
+        type: "string"
+      detail:
+        type: "string"
+        description: "商品详细描述"
+      imageUrl:
+        type: "string"
+      state:
+        type: "integer"
+        description: "商品状态"
+      spec:
+        $ref: "#/definitions/Spec"
+      gmtCreateTime:
+        type: "string"
+        format: "datetime"
+        description: "创建时间"
+      gmtModiTime:
+        type: "string"
+        format: "datetime"
+        description: "修改时间"
+      disable:
+        type: "boolean"
+        default: false
+        description: "是否被逻辑删除"
+
+  Sku:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "SKU ID"
+      name:
+        type: "string"
+      skuSn:
+        type: "string"
+      detail:
+        type: "string"
+        description: "详细描述"
+      imageUrl:
+        type: "string"
+      inventory:
+        type: "integer"
+        description: "库存"
+      configuration:
+        type: "string"
+        description: "配置参数JSON"
+      weight:
+        type: "integer"
+        description: "重量"
+      gmtCreateTime:
+        type: "string"
+        format: "datetime"
+        description: "创建时间"
+      gmtModiTime:
+        type: "string"
+        format: "datetime"
+        description: "修改时间"
+      spu:
+        $ref: "#/definitions/Spu"
+      disable:
+        type: "boolean"
+        default: false
+        description: "是否被逻辑删除"
+
+  SimpleSku:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "SKU ID"
+      name:
+        type: "string"
+      skuSn:
+        type: "string"
+      detail:
+        type: "string"
+        description: "详细描述"
+      imageUrl:
+        type: "string"
+      inventory:
+        type: "integer"
+        description: "库存"
+      configuration:
+        type: "string"
+        description: "配置参数JSON"
+      weight:
+        type: "integer"
+        description: "重量"
+      gmtCreateTime:
+        type: "string"
+        format: "datetime"
+        description: "创建时间"
+      gmtModiTime:
+        type: "string"
+        format: "datetime"
+        description: "修改时间"
+      disable:
+        type: "boolean"
+        default: false
+        description: "是否被逻辑删除"
+
+  Spec:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        description: "spec id"
+      name:
+        type: "string"
+        description: "规格名称"
+      specItems:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            id:
+              type: "integer"
+              description: "spec id"
+            name:
+              type: "string"
+              description: "规格内容"
+            
+  SimpleBrand:
+    type: "object"
+    properties:
+        id:
+          type: "integer"
+          format: "int64"
+        name:
+      
